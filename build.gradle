@@ -1,0 +1,67 @@
+group 'utility'
+version '1.0-SNAPSHOT'
+
+apply plugin: 'groovy'
+apply plugin: 'java'
+
+sourceCompatibility = 1.8
+
+group applicationGroup
+version applicationVersion
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+
+    // Groovy
+    compile 'org.codehaus.groovy:groovy-all:2.3.11'
+
+    // Http Builder
+    compile group: 'org.codehaus.groovy.modules.http-builder', name: 'http-builder', version: '0.7.1'
+
+    // Spring Boot
+    compile group: 'org.springframework.boot', name: 'spring-boot-starter-web', version: '1.5.3.RELEASE'
+    compile group: 'org.springframework.boot', name: 'spring-boot-actuator', version: '1.5.3.RELEASE'
+
+    // Cloud Consul
+    compile group: 'org.springframework.cloud', name: 'spring-cloud-starter-consul-all', version: '1.2.1.RELEASE'
+
+    // Log4j2
+    compile group: 'org.apache.logging.log4j', name: 'log4j-api', version: '2.8.2'
+    compile group: 'org.apache.logging.log4j', name: 'log4j-core', version: '2.8.2'
+
+    // Windows platform
+//    compile group: 'net.java.dev.jna', name: 'platform', version: '3.4.0'
+//    compile group: 'net.java.dev.jna', name: 'jna-platform', version: '4.2.2'
+
+    // Testing
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+    testCompile group: 'com.sun.net.httpserver', name: 'http', version: '20070405'
+}
+
+sourceSets {
+    main {
+        groovy {
+            srcDirs = ['src/main/groovy']
+        }
+    }
+    test {
+        groovy {
+            srcDirs = ['src/test/groovy']
+        }
+    }
+}
+
+test {
+    logging.level = LogLevel.INFO
+    testLogging {
+        logging.level = LogLevel.INFO
+        events 'started', 'passed'
+    }
+}
+
+task wrapper(type: Wrapper) {
+    gradleVersion = gradleWrapperVersion
+}
