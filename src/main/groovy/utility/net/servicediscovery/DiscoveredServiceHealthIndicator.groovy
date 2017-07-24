@@ -1,12 +1,10 @@
-package utility.net.consul
+package utility.net.servicediscovery
 
 import utility.net.ServiceHealthIndicator
 import org.springframework.boot.actuate.health.Health
 
-/**
- * Created by mknopf on 5/19/2017.
- */
-public class ConsulServiceHealthIndicator extends ServiceHealthIndicator {
+
+class DiscoveredServiceHealthIndicator extends ServiceHealthIndicator {
 
     @Override
     protected void doHealthCheck(Health.Builder builder) throws Exception {

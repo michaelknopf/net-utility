@@ -8,21 +8,21 @@ import org.apache.log4j.Logger
 
 import javax.ws.rs.core.HttpHeaders
 import javax.ws.rs.core.MediaType
-
 /**
- * Created by mknopf on 5/18/2017.
+ * Manages HTTP requests to a specific domain.
  */
 class ServiceClient {
 
     String rootUrl
     String username
     String password
+
+    // store cookies and use them in subsequent requests
     List<HttpCookie> cookies = []
 
-    Logger logger
+    Logger logger = Logger.getLogger(ServiceClient)
 
     ServiceClient(String rootUrl, String username, String password) {
-        logger = Logger.getLogger(ServiceClient)
         setRootUrl(rootUrl)
         this.username = username
         this.password = password
@@ -38,53 +38,83 @@ class ServiceClient {
         }
     }
 
+    /**
+     * Makes an HTTP request to rootUrl.  If the username field is non-null,
+     * uses basic authentication.  Uses any cookies found in the cookies field.
+     * @param path The path of the URL, excluding the query string
+     * @param query A map of query string parameters
+     * @param body A map to be converted to a JSON body
+     * @param verb The HTTP verb/method to be used
+     * @return A map containing keys "statusCode", "json", and "response"
+     * (contains is the HttpResponseDecorator instance returned by HttpBuilder)
+     */
     def call(path, query = null, body = null, verb = Method.GET) {
 
+        // ensure that rootUrl is not null
         if (!rootUrl) {
             def message = "rootUrl is null, cannot make call to $path."
             logger.error(message)
             throw new IllegalStateException(message)
         }
 
+        // convert to type Method (if necessary)
         verb = verb as Method
+
+        // allow paths to contain or omit the leading slash
         path = StringUtils.stripStart(path, '/')
         String fullPath = "${rootUrl}/${path}"
 
         HTTPBuilder http = new HTTPBuilder(fullPath)
+
+        // if username is non-null, use basic authentication
         if (username) {
             http.auth.basic(username, password)
         }
 
-        def result = [:]
         try {
+            // make request
             http.request(verb, ContentType.JSON) { req ->
-                headers.Accept = MediaType.APPLICATION_JSON
-                headers.Cookie = cookies.join(';')
 
+                // set headers
+                headers.with {
+                    Accept = MediaType.APPLICATION_JSON
+                    Cookie = this.cookies.join(';')
+                }
+
+                // set query string
                 uri.query = query
+
+                // set request body
                 if (body != null) {
                     delegate.body = body
                 }
 
+                // handle response
                 response.success = { resp, json ->
 
-                    result.response = resp
-                    result.statusCode = resp.statusLine.statusCode
-                    result.json = json
+                    // add json to response decorator
+                    resp.responseData = json
 
-                    for (String header : result.response.getHeaders(HttpHeaders.SET_COOKIE)) {
+                    // store cookies
+                    for (String header : resp.getHeaders(HttpHeaders.SET_COOKIE)) {
                         cookies += HttpCookie.parse(header.toString())
                     }
+
+                    // return response decorator
+                    return resp
                 }
+
+                // for status codes >= 400, use same handler and allow exception if one occurs
                 response.failure = response.success
             }
         } catch(e) {
             logger.error("'$verb' call on '$fullPath' failed with exception: $e")
             throw e
         }
-
-        return result
     }
+
+
+    // Convenience methods
 
     def get(path, query = null) {
         call(path, query, null, Method.GET)

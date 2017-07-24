@@ -1,6 +1,7 @@
 package utility.net
 
 import groovy.json.JsonBuilder
+import groovyx.net.http.HttpResponseDecorator
 import org.mockserver.integration.ClientAndServer
 import org.mockserver.model.Cookie
 import org.mockserver.model.Header
@@ -15,6 +16,7 @@ import javax.ws.rs.core.MediaType
 import static org.mockserver.integration.ClientAndServer.startClientAndServer
 import static org.mockserver.model.HttpRequest.request
 import static org.mockserver.model.HttpResponse.response
+
 
 class ServiceClientSpec extends Specification {
 
@@ -56,10 +58,10 @@ class ServiceClientSpec extends Specification {
         )
 
         when: "make GET call"
-        Map result = serviceClient.get(path, requestParams)
+        HttpResponseDecorator result = serviceClient.get(path, requestParams)
 
         then: "response is 200"
-        200 == result.statusCode
+        200 == result.statusLine.statusCode
 
         where:
         path << data.path
@@ -84,10 +86,10 @@ class ServiceClientSpec extends Specification {
         )
 
         when: "make POST call"
-        Map result = serviceClient.post(path, requestBody)
+        HttpResponseDecorator result = serviceClient.post(path, requestBody)
 
         then: "response is 200"
-        200 == result.statusCode
+        200 == result.statusLine.statusCode
 
         where:
         path << data.path
@@ -113,10 +115,10 @@ class ServiceClientSpec extends Specification {
         )
 
         when: "make GET call"
-        Map result = serviceClient.get(path)
+        HttpResponseDecorator result = serviceClient.get(path)
 
         then: "response is 200"
-        responseBody == result.json
+        responseBody == result.getData()
 
         where:
         path << data.path
@@ -157,10 +159,10 @@ class ServiceClientSpec extends Specification {
         serviceClient.get("/start-session")
 
         and: "use cookie"
-        Map result = serviceClient.get("/do-something")
+        HttpResponseDecorator result = serviceClient.get("/do-something")
 
         then: "response is 200 and stored cookies are as expected"
-        result.statusCode == 200
+        result.statusLine.statusCode == 200
         serviceClient.cookies == [cookie]
 
         where:
