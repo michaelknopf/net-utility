@@ -17,7 +17,7 @@ class ServiceClient {
     String rootUrl
     String username
     String password
-    String cookie
+    List<HttpCookie> cookies = []
 
     Logger logger
 
@@ -59,7 +59,7 @@ class ServiceClient {
         try {
             http.request(verb, ContentType.JSON) { req ->
                 headers.Accept = MediaType.APPLICATION_JSON
-                headers.Cookie = cookie
+                headers.Cookie = cookies.join(';')
 
                 uri.query = query
                 if (body != null) {
@@ -72,9 +72,8 @@ class ServiceClient {
                     result.statusCode = resp.statusLine.statusCode
                     result.json = json
 
-                    def cookie = resp?.getFirstHeader(HttpHeaders.SET_COOKIE)?.value?.split(';')?.first()
-                    if (cookie) {
-                        this.cookie = cookie
+                    for (String header : result.response.getHeaders(HttpHeaders.SET_COOKIE)) {
+                        cookies += HttpCookie.parse(header.toString())
                     }
                 }
                 response.failure = response.success
