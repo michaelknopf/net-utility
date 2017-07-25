@@ -1,21 +1,23 @@
 package utility.net.servicediscovery
 
+import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.Method
 import org.apache.log4j.Logger
 import org.springframework.cloud.client.ServiceInstance
 import org.springframework.cloud.client.discovery.DiscoveryClient
+import utility.net.HttpClient
 import utility.net.ServiceClient
 
 /**
  * Manages HTTP requests to a specific service whose root url is
  * configured through service discovery.
  */
-class DiscoveredServiceClient {
+class DiscoveredServiceClient implements HttpClient {
 
     /**
      * serviceClient is configured using information found through discoveryClient.
      */
-    @Delegate(excludes=['call']) ServiceClient serviceClient
+    ServiceClient serviceClient
 
     DiscoveryClient discoveryClient
     String serviceId
@@ -35,7 +37,7 @@ class DiscoveredServiceClient {
      * The strategy used to choose an instance from the list
      * of all discovered instances
      */
-    List<ServiceInstance> discoveryStrategy(instances) {
+    ServiceInstance discoveryStrategy(List<ServiceInstance> instances) {
         return instances[0]
     }
 
@@ -63,7 +65,7 @@ class DiscoveredServiceClient {
             throw new Exception(message)
         }
         logger.info("Found service $serviceId at $url.")
-        setRootUrl(url)
+        serviceClient.setRootUrl(url)
     }
 
     /**
@@ -76,7 +78,7 @@ class DiscoveredServiceClient {
      * @return A map containing keys "statusCode", "json", and "response"
      * (contains is the HttpResponseDecorator instance returned by HttpBuilder)
      */
-    def call(path, query = null, body = null, verb = Method.GET) {
+    HttpResponseDecorator call(String path, Map query = null, Map body = null, verb = Method.GET) {
 
         // if root url is null, attempt to discover
         if (!serviceClient.rootUrl) {

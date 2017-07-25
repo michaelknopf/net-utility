@@ -23,8 +23,7 @@ class ServiceClientSpec extends Specification {
     ClientAndServer mockServer
     ServiceClient serviceClient
 
-    @Shared
-    data = [
+    @Shared Map data = [
             path: ["/", "/some/long/path"],
             body:  [[someKey: "someValue"]] * 2
     ]

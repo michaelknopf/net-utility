@@ -2,6 +2,7 @@ package utility.net
 
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
+import groovyx.net.http.HttpResponseDecorator
 import groovyx.net.http.Method
 import org.apache.commons.lang.StringUtils
 import org.apache.log4j.Logger
@@ -11,7 +12,7 @@ import javax.ws.rs.core.MediaType
 /**
  * Manages HTTP requests to a specific domain.
  */
-class ServiceClient {
+class ServiceClient implements HttpClient {
 
     String rootUrl
     String username
@@ -32,7 +33,7 @@ class ServiceClient {
         this(rootUrl, null, null)
     }
 
-    public void setRootUrl(String rootUrl) {
+    void setRootUrl(String rootUrl) {
         if (rootUrl) {
             this.rootUrl = StringUtils.stripEnd(rootUrl, '/')
         }
@@ -48,7 +49,7 @@ class ServiceClient {
      * @return A map containing keys "statusCode", "json", and "response"
      * (contains is the HttpResponseDecorator instance returned by HttpBuilder)
      */
-    def call(path, query = null, body = null, verb = Method.GET) {
+    HttpResponseDecorator call(String path, Map query = null, Map body = null, verb = Method.GET) {
 
         // ensure that rootUrl is not null
         if (!rootUrl) {
@@ -73,7 +74,7 @@ class ServiceClient {
 
         try {
             // make request
-            http.request(verb, ContentType.JSON) { req ->
+            (HttpResponseDecorator) http.request(verb, ContentType.JSON) { req ->
 
                 // set headers
                 headers.with {
@@ -90,7 +91,7 @@ class ServiceClient {
                 }
 
                 // handle response
-                response.success = { resp, json ->
+                response.success = { HttpResponseDecorator resp, json ->
 
                     // add json to response decorator
                     resp.responseData = json
@@ -111,25 +112,6 @@ class ServiceClient {
             logger.error("'$verb' call on '$fullPath' failed with exception: $e")
             throw e
         }
-    }
-
-
-    // Convenience methods
-
-    def get(path, query = null) {
-        call(path, query, null, Method.GET)
-    }
-
-    def put(path, body = null) {
-        call(path, null, body, Method.PUT)
-    }
-
-    def post(path, body = null) {
-        call(path, null, body, Method.POST)
-    }
-
-    def delete(path, body = null) {
-        call(path, null, body, Method.DELETE)
     }
 
 }
