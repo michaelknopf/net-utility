@@ -15,7 +15,7 @@ import utility.net.ServiceClient
 class DiscoveredServiceClient implements HttpClient {
 
     /** serviceClient acts as a delegate, and is configured using information found through discoveryClient. */
-    ServiceClient serviceClient
+    @Delegate(excludes = ["call", "get", "put", "post", "delete"]) ServiceClient serviceClient
 
     DiscoveryClient discoveryClient
     String serviceId
@@ -53,7 +53,7 @@ class DiscoveredServiceClient implements HttpClient {
         }
 
         // use discovery strategy to choose an instance
-        def service = discoveryStrategy(instances)
+        ServiceInstance service = discoveryStrategy(instances)
 
         // configure root url of delegate service client
         String url = service.getUri()
@@ -76,7 +76,7 @@ class DiscoveredServiceClient implements HttpClient {
      * @return A map containing keys "statusCode", "json", and "response"
      * (contains is the HttpResponseDecorator instance returned by HttpBuilder)
      */
-    HttpResponseDecorator call(String path, Map query = null, Map body = null, verb = Method.GET) {
+    HttpResponseDecorator call(String path = "", Map query = null, Map body = null, verb = Method.GET) {
 
         // if root url is null, attempt to discover
         if (!serviceClient.rootUrl) {

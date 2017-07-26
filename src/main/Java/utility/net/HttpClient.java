@@ -16,12 +16,20 @@ public interface HttpClient {
         return call (path, null, null, "GET");
     }
 
+    default public HttpResponseDecorator get() {
+        return call ("", null, null, "GET");
+    }
+
     default HttpResponseDecorator put(String path, Map body) {
         return call(path, null, body, "PUT");
     }
 
     default HttpResponseDecorator put(String path) {
         return call(path, null, null, "PUT");
+    }
+
+    default HttpResponseDecorator put() {
+        return call("", null, null, "PUT");
     }
 
     default HttpResponseDecorator post(String path, Map body) {
@@ -32,6 +40,10 @@ public interface HttpClient {
         return call(path, null, null, "POST");
     }
 
+    default HttpResponseDecorator post() {
+        return call("", null, null, "POST");
+    }
+
     default HttpResponseDecorator delete(String path, Map body) {
         return call(path, null, body, "DELETE");
     }
@@ -40,5 +52,8 @@ public interface HttpClient {
         return call(path, null, null, "DELETE");
     }
 
+    default HttpResponseDecorator delete() {
+        return call("", null, null, "DELETE");
+    }
 
 }

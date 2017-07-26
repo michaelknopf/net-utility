@@ -49,7 +49,7 @@ class ServiceClient implements HttpClient {
      * @return A map containing keys "statusCode", "json", and "response"
      * (contains is the HttpResponseDecorator instance returned by HttpBuilder)
      */
-    HttpResponseDecorator call(String path, Map query = null, Map body = null, verb = Method.GET) {
+    HttpResponseDecorator call(String path = "", Map query = null, Map body = null, verb = Method.GET) {
 
         // ensure that rootUrl is not null
         if (!rootUrl) {

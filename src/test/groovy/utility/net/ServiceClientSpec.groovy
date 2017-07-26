@@ -47,13 +47,13 @@ class ServiceClientSpec extends Specification {
         mockServer
         .when(
                 request()
-                        .withMethod("GET")
-                        .withPath(path)
-                        .withQueryStringParameters(*requestParams.collect{ k, v -> new org.mockserver.model.Parameter(k, v) })
+                .withMethod("GET")
+                .withPath(path)
+                .withQueryStringParameters(*requestParams.collect{ k, v -> new org.mockserver.model.Parameter(k, v) })
         )
         .respond(
                 response()
-                        .withStatusCode(200)
+                .withStatusCode(200)
         )
 
         when: "make GET call"
@@ -75,13 +75,13 @@ class ServiceClientSpec extends Specification {
         mockServer
         .when(
                 request()
-                        .withMethod("POST")
-                        .withPath(path)
-                        .withBody(new JsonBuilder(requestBody).toString())
+                .withMethod("POST")
+                .withPath(path)
+                .withBody(new JsonBuilder(requestBody).toString())
         )
         .respond(
                 response()
-                        .withStatusCode(200)
+                .withStatusCode(200)
         )
 
         when: "make POST call"
@@ -103,14 +103,14 @@ class ServiceClientSpec extends Specification {
         mockServer
         .when(
                 request()
-                        .withMethod("GET")
-                        .withPath(path)
+                .withMethod("GET")
+                .withPath(path)
         )
         .respond(
                 response()
-                        .withStatusCode(200)
-                        .withBody(new JsonBuilder(responseBody).toString())
-                        .withHeader(new Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
+                .withStatusCode(200)
+                .withBody(new JsonBuilder(responseBody).toString())
+                .withHeader(new Header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON))
         )
 
         when: "make GET call"
@@ -132,26 +132,26 @@ class ServiceClientSpec extends Specification {
         mockServer
         .when(
                 request()
-                        .withMethod("GET")
-                        .withPath("/start-session")
+                .withMethod("GET")
+                .withPath("/start-session")
         )
         .respond(
                 response()
-                        .withStatusCode(200)
-                        .withCookie(new Cookie(cookie.name, cookie.value))
+                .withStatusCode(200)
+                .withCookie(new Cookie(cookie.name, cookie.value))
         )
 
         and: "setup URI that requires cookie"
         mockServer
         .when(
                 request()
-                        .withMethod("GET")
-                        .withPath("/do-something")
-                        .withCookie(new Cookie(cookie.name, cookie.value))
+                .withMethod("GET")
+                .withPath("/do-something")
+                .withCookie(new Cookie(cookie.name, cookie.value))
         )
         .respond(
                 response()
-                        .withStatusCode(200)
+                .withStatusCode(200)
         )
 
         when: "obtain and store cookie"
