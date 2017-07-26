@@ -162,7 +162,7 @@ class ServiceClientSpec extends Specification {
 
         then: "response is 200 and stored cookies are as expected"
         result.statusLine.statusCode == 200
-        serviceClient.cookies == [cookie]
+        serviceClient.cookies[cookie.name] == cookie
 
         where:
         cookie << [new HttpCookie("sessionId", "2By8LOhBmaW5nZXJwcmludCIlMDAzMW")]

@@ -19,7 +19,7 @@ class ServiceClient implements HttpClient {
     String password
 
     // store cookies and use them in subsequent requests
-    List<HttpCookie> cookies = []
+    Map<String, HttpCookie> cookies = [:]
 
     Logger logger = Logger.getLogger(ServiceClient)
 
@@ -77,10 +77,8 @@ class ServiceClient implements HttpClient {
             (HttpResponseDecorator) http.request(verb, ContentType.JSON) { req ->
 
                 // set headers
-                headers.with {
-                    Accept = MediaType.APPLICATION_JSON
-                    Cookie = this.cookies.join(';')
-                }
+                headers.Accept = MediaType.APPLICATION_JSON
+                headers.Cookie = cookies.values().join(';')
 
                 // set query string
                 uri.query = query
@@ -98,7 +96,9 @@ class ServiceClient implements HttpClient {
 
                     // store cookies
                     for (String header : resp.getHeaders(HttpHeaders.SET_COOKIE)) {
-                        cookies += HttpCookie.parse(header.toString())
+                        for (HttpCookie cookie : HttpCookie.parse(header.toString())) {
+                            cookies[cookie.name] = cookie
+                        }
                     }
 
                     // return response decorator
