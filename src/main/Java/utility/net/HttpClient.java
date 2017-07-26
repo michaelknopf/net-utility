@@ -1,40 +1,42 @@
 package utility.net;
 
+import groovyx.net.http.HttpResponseDecorator;
+
 import java.util.Map;
 
 public interface HttpClient {
 
-    Object call(String path, Map query, Map body, Object verb);
+    HttpResponseDecorator call(String path, Map query, Map body, Object verb);
 
-    default public Object get(String path, Map query) {
+    default public HttpResponseDecorator get(String path, Map query) {
         return call(path, query, null, "GET");
     }
 
-    default public Object get(String path) {
+    default public HttpResponseDecorator get(String path) {
         return call (path, null, null, "GET");
     }
 
-    default Object put(String path, Map body) {
+    default HttpResponseDecorator put(String path, Map body) {
         return call(path, null, body, "PUT");
     }
 
-    default Object put(String path) {
+    default HttpResponseDecorator put(String path) {
         return call(path, null, null, "PUT");
     }
 
-    default Object post(String path, Map body) {
+    default HttpResponseDecorator post(String path, Map body) {
         return call(path, null, body, "POST");
     }
 
-    default Object post(String path) {
+    default HttpResponseDecorator post(String path) {
         return call(path, null, null, "POST");
     }
 
-    default Object delete(String path, Map body) {
+    default HttpResponseDecorator delete(String path, Map body) {
         return call(path, null, body, "DELETE");
     }
 
-    default Object delete(String path) {
+    default HttpResponseDecorator delete(String path) {
         return call(path, null, null, "DELETE");
     }
 

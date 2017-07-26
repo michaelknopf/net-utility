@@ -14,9 +14,7 @@ import utility.net.ServiceClient
  */
 class DiscoveredServiceClient implements HttpClient {
 
-    /**
-     * serviceClient is configured using information found through discoveryClient.
-     */
+    /** serviceClient acts as a delegate, and is configured using information found through discoveryClient. */
     ServiceClient serviceClient
 
     DiscoveryClient discoveryClient
