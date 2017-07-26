@@ -1,34 +1,31 @@
 package utility.net
 
+import groovyx.net.http.HttpResponseDecorator
 import org.springframework.boot.actuate.health.AbstractHealthIndicator
 import org.springframework.boot.actuate.health.Health
 
 /**
- * Created by mknopf on 5/18/2017.
+ * A Spring Boot health indicator for service clients.
  */
 class ServiceHealthIndicator extends AbstractHealthIndicator {
 
     protected final int timeout
     ServiceClient serviceClient
 
-    ServiceHealthIndicator(final int timeout = 3000) {
+    ServiceHealthIndicator(ServiceClient serviceClient, final int timeout = 3000) {
+        this.serviceClient = serviceClient
         this.timeout = timeout
     }
 
     @Override
     protected void doHealthCheck(Health.Builder builder) throws Exception {
 
-        def result
-        try {
-            result = serviceClient.get('/')
+        HttpResponseDecorator response = serviceClient.get('/')
+        if (response.statusLine.statusCode >= 400) {
+            builder.down(new Exception("Request to '$serviceClient.rootUrl' received ${response.statusLine.statusCode} response."))
+        } else {
             builder.withDetail('serviceUrl', serviceClient.rootUrl)
             builder.up()
-        } catch(e) {
-            if (serviceClient.rootUrl) {
-                builder.down(new Exception("Invalid responseCode '$result.statusCode' from '$serviceClient.rootUrl'."))
-            } else {
-                builder.down(new Exception("Cannot find service '$serviceClient.serviceId' on Consul."))
-            }
         }
 
     }
